@@ -20,10 +20,13 @@ contract EventFactory {
 
     mapping(uint256 => eventProperties) private idToEvent;
 
+    mapping(address => Event[]) private organizerToEvent;
+
     function createEvent( string memory eventName, string memory eventDescription, int longtitude, int latitude, int eventTimestamp, int eventCapacity) public {
         _eventID.increment();
         uint256 currEventID = _eventID.current();
         Event newEvent = new Event(currEventID, msg.sender);
+        
         idToEvent[currEventID] = eventProperties({
             _eventName: eventName,
             _eventDescription: eventDescription,
@@ -33,6 +36,8 @@ contract EventFactory {
             _eventTimestamp: eventTimestamp,
             _eventCapacity: eventCapacity
         });
+
+        organizerToEvent[msg.sender].push(newEvent);
     }
 
     function getDeployedEvents() public view  returns (eventProperties[] memory) {
@@ -42,6 +47,10 @@ contract EventFactory {
             events[i] = idToEvent[i+1];
         }
         return events;
+    }
+
+    function getEventsByOrganizer(address organizerAddress) public view returns(Event[] memory) {
+        return organizerToEvent[organizerAddress];
     }
 
 }
